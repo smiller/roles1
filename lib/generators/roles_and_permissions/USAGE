@@ -1,0 +1,61 @@
+Description:
+    Creates migration and model classes for a roles and permissions system.
+
+Example #1: No module specified
+
+    rails generate roles_and_permissions
+
+    This will create:
+        db/migrate/{timestamp}_roles_and_permissions_create.rb
+        app/models/role.rb
+                   permission.rb
+                   role_permission.rb
+                   user_permission.rb
+                   user_role.rb
+
+                  class Role < ActiveRecord::Base
+                    has_many :role_permissions
+                    ...
+                  end
+                  
+Example #2: Module specified
+
+    rails generate roles_and_permissions users
+
+    This will create:
+        db/migrate/{timestamp}_roles_and_permissions_create.rb
+        app/models/users/role.rb
+                         permission.rb
+                         role_permission.rb
+                         user_permission.rb
+                         user_role.rb
+                         
+                         module Users
+                         class Role < ActiveRecord::Base
+                           has_many :role_permissions, :class_name => 'Users::RolePermission'
+                           ...
+                         end
+                         end
+    
+    In the first draft, we assume a user class, called user, already exists --
+    most likely created as part of the authentication solution.
+    
+    When we're defining models within a module we shouldn't need to 
+    specify the :class_name on relations, and when we're 
+    only using classes within the module, we don't.  However, when we 
+    use the classes from other classes outside the module, we do need them, 
+    so when a module is specified, explicit :class_name attributes are 
+    added to relationships.
+    
+    Yes, I know about https://github.com/matthuhiggins/foreigner, and it is 
+    a more generic solution to the problem of ensuring foreign keys are added
+    in migrations.  But the last time I tried to use it it wasn't working,
+    and since I only need a subset of the functionality, it 
+    seemed simpler and perhaps more reliable to include a small helper here.
+    
+    I'd like to add options to create the user here or to templatize further 
+    so that if the user is called something else these files are changed 
+    accordingly, following devise's "rails g devise MODEL" option.  
+    
+    However, since user is by far the most common, this will come later.
+
